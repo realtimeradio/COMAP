@@ -7,33 +7,56 @@ import matplotlib.pyplot as plt
 roach = '192.168.42.65'
 
 fpga = corr.katcp_wrapper.FpgaClient(roach)
-time.sleep(0.5)
+time.sleep(0.1)
 
 # setup initial parameters
 
-real = 0b0000000000000000
-imag = 0b0100000000000000
-coeff0 = (real<<16)+imag
+real = '0000000000000000'
+imag = '0100000000000000'
+#imag = '0000000000000000'
+#coeff0 = (real<<16)+imag
 #print "{0:032b}".format(coeff0)
-coeffArray = np.ones(1024,'l')*coeff0
-coeffStr = struct.pack('>1024l',*coeffArray)
+coeff0 = (real + imag)
+#print coeff0
+coeff0 = int(coeff0,2)
+#coeff0 = int(coeff0)
+print coeff0
+coeffArray = np.ones(1024,'I')*coeff0
+print coeffArray
+coeffStr = struct.pack('>1024I',*coeffArray)
 
 
 fpga.write('c2_0',coeffStr)
+time.sleep(0.5)
 fpga.write('c2_1',coeffStr)
+time.sleep(0.5)
 fpga.write('c2_2',coeffStr)
+time.sleep(0.5)
 fpga.write('c2_3',coeffStr)
+time.sleep(0.5)
 fpga.write('c2_4',coeffStr)
+time.sleep(0.5)
 fpga.write('c2_5',coeffStr)
+time.sleep(0.5)
 fpga.write('c2_6',coeffStr)
+time.sleep(0.5)
 fpga.write('c2_7',coeffStr)
+time.sleep(0.5)
 fpga.write('c3_0',coeffStr)
+time.sleep(0.5)
 fpga.write('c3_1',coeffStr)
+time.sleep(0.5)
 fpga.write('c3_2',coeffStr)
+time.sleep(0.5)
 fpga.write('c3_3',coeffStr)
+time.sleep(0.5)
 fpga.write('c3_4',coeffStr)
+time.sleep(0.5)
 fpga.write('c3_5',coeffStr)
+time.sleep(0.5)
 fpga.write('c3_6',coeffStr)
+time.sleep(0.5)
+fpga.write('c3_7',coeffStr)
 # trigger all the snap blocks
 time.sleep(0.1)
 fpga.write_int('snap_inp1_ctrl',0)
@@ -146,9 +169,10 @@ bramsnap14x = struct.unpack('>128q',fpga.read('snap_inp13x_bram',128*8))
 bramsnap15x = struct.unpack('>128q',fpga.read('snap_inp15x_bram',128*8))
 bramsnap16x = struct.unpack('>128q',fpga.read('snap_inp14x_bram',128*8))
 
-#for i in range(103,105):
-	#cross_power1 = complex(bramsnap1x[i]/2**34,bramsnap2x[i]/2**34);
-	#print 'i: '+str(i)+'  real: '+str((float(bramsnap1x[i])/2**34))+'  imag: '+str(float(bramsnap2x[i])/2**34)
+#for i in range(95,105):
+#	cross_power1 = complex(bramsnap1x[i]/2**34,bramsnap2x[i]/2**34);
+#	print 'i: '+str(i)+'  real: '+str((float(bramsnap1x[i])/2**34))+'  imag: '+str(float(bramsnap2x[i])/2**34)+'  totalI: '+str((float(bramsnap1[i])/2**34))+'  totalQ: '+str(float(bramsnap1a[i])/2**34)
+
 #cross_power2 = bramsnap3x + 1j*bramsnap4x;
 #cross_power3 = bramsnap5x + 1j*bramsnap6x;
 #cross_power4 = bramsnap7x + 1j*bramsnap8x;
@@ -162,8 +186,9 @@ bramsnap16x = struct.unpack('>128q',fpga.read('snap_inp14x_bram',128*8))
 
 #cross_powerIQ = np.concatenate([cross_power1,cross_power2,cross_power3,cross_power4,cross_power5,cross_power6,cross_power7,cross_power8]); 
 
-total_powerI = float(bramsnap1[102])/2**34
-total_powerQ = float(bramsnap1a[102])/2**34
+total_powerI = float(bramsnap1[102])/2**32
+total_powerQ = float(bramsnap1a[102])/2**32
+# one channel offset due to bug in fpga code, fixed for v6
 cross_powerIQ = complex(float(bramsnap1x[102])/2**34,float(bramsnap2x[102])/2**34)
 
 print 'totalpowerI: '+str(total_powerI)+'  totalpowerQ: '+str(total_powerQ)+'  crosspowerIQ:'+str(cross_powerIQ)
@@ -182,30 +207,29 @@ coeffs3r = np.binary_repr(np.int16(combCoeff3.real*2**14),16)
 coeffs3i = np.binary_repr(np.int16(combCoeff3.imag*2**14),16)
 coeffs2 = (coeffs2r + coeffs2i)
 coeffs3 = (coeffs3r + coeffs3i)
-
 coeffs2 = int(coeffs2,2)
 coeffs3 = int(coeffs3,2)
-coeffArray2 = np.ones(1024,'l')*coeffs2
-coeffArray3 = np.ones(1024,'l')*coeffs3
+coeffArray2 = np.ones(1024,'L')*coeffs2
+coeffArray3 = np.ones(1024,'L')*coeffs3
 #coeffArray2 = np.zeros(1024,'l')*coeffs2
 #coeffArray3 = np.zeros(1024,'l')*coeffs3
-coeffStr2 = struct.pack('>1024l',*coeffArray2)
-coeffStr3 = struct.pack('>1024l',*coeffArray3)
+coeffStr2 = struct.pack('>1024L',*coeffArray2)
+coeffStr3 = struct.pack('>1024L',*coeffArray3)
 
-fpga.write('c2_0',coeffStr2)
-fpga.write('c2_1',coeffStr2)
-fpga.write('c2_2',coeffStr2)
-fpga.write('c2_3',coeffStr2)
-fpga.write('c2_4',coeffStr2)
-fpga.write('c2_5',coeffStr2)
-fpga.write('c2_6',coeffStr2)
-fpga.write('c2_7',coeffStr2)
-fpga.write('c3_0',coeffStr3)
-fpga.write('c3_1',coeffStr3)
-fpga.write('c3_2',coeffStr3)
-fpga.write('c3_3',coeffStr3)
-fpga.write('c3_4',coeffStr3)
-fpga.write('c3_5',coeffStr3)
-fpga.write('c3_6',coeffStr3)
-fpga.write('c3_7',coeffStr3)
+#fpga.write('c2_0',coeffStr2)
+#fpga.write('c2_1',coeffStr2)
+#fpga.write('c2_2',coeffStr2)
+#fpga.write('c2_3',coeffStr2)
+#fpga.write('c2_4',coeffStr2)
+#fpga.write('c2_5',coeffStr2)
+#fpga.write('c2_6',coeffStr2)
+#fpga.write('c2_7',coeffStr2)
+#fpga.write('c3_0',coeffStr3)
+#fpga.write('c3_1',coeffStr3)
+#fpga.write('c3_2',coeffStr3)
+#fpga.write('c3_3',coeffStr3)
+#fpga.write('c3_4',coeffStr3)
+#fpga.write('c3_5',coeffStr3)
+#fpga.write('c3_6',coeffStr3)
+#fpga.write('c3_7',coeffStr3)
 
