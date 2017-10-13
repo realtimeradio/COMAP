@@ -17,8 +17,8 @@ else:
     
 # setup initial parameters
 fpga.write_int('fft_shift',65535)
-#fpga.write_int('acc_len',65535)
-fpga.write_int('acc_len',1023)
+fpga.write_int('acc_len',65535)
+#fpga.write_int('acc_len',1023)
 
 # coefficients for separate spectrometer
 real = 0b0100000000000000
