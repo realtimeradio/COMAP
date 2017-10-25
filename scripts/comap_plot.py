@@ -103,9 +103,9 @@ for toneIter in range(0,numTones):
 	bramsnapQ = np.concatenate([bramsnap1a,bramsnap2a,bramsnap3a,bramsnap4a,bramsnap5a,bramsnap6a,bramsnap7a,bramsnap8a])
 
 plt.subplot(2,1,1)
-plt.plot((bramsnapI))
+plt.semilogy((bramsnapI))
 plt.subplot(2,1,2)
-plt.plot((bramsnapQ))
+plt.semilogy((bramsnapQ))
 plt.show()
 
 

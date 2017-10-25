@@ -135,6 +135,8 @@ def defCoeffs23(coeff2,coeffs3):
 	time.sleep(0.5)
 	fpga.write('c4_7',coeffStr)
 	time.sleep(0.5)
+
+	
 	
 	
 	fpga.write('c2_0',coeff2)
@@ -319,7 +321,7 @@ def calcCoeffs():
 	print 'powerCoeff: '+str(powerCoeff)+'  phaseCoeff: '+str(phaseCoeff)+'  combCoeff:'+str(combCoeff)
 	
 	combCoeff2 = -1*(combCoeff)
-	combCoeff3 = i1*(np.power(combCoeff,-1))
+	combCoeff3 = -1*(np.power(combCoeff,-1))
 	coeffs2r = np.binary_repr(np.int16(combCoeff2.real*2**14),16)
 	coeffs2i = np.binary_repr(np.int16(combCoeff2.imag*2**14),16)
 	coeffs3r = np.binary_repr(np.int16(combCoeff3.real*2**14),16)
@@ -334,5 +336,21 @@ def calcCoeffs():
 	#coeffArray3 = np.zeros(1024,'l')*coeffs3
 	coeffStr2 = struct.pack('>1024L',*coeffArray2)
 	coeffStr3 = struct.pack('>1024L',*coeffArray3)
-	
+
+#
+#import h5py
+#filename = 'file.hdf5'
+#f = h5py.File(filename, 'r')
+#
+## List all groups
+#print("Keys: %s" % f.keys())
+#a_group_key = f.keys()[0]
+#
+## Get the data
+#data = list(f[a_group_key])
+
+
+# c2: 0-7: reversed?
+# c3: 0-7: normal? (or switch reverse).
+#	
 defCoeffs()	
