@@ -82,12 +82,13 @@ for zz in range(0,16):
 	cross_powerIQ = cross_powerIQ + (absI*np.conj(absQ))
 	absIacc = absIacc + tmpI
 	absQacc = absQacc + tmpQ
-
+	
 	c1 = 1 + 0j
 	#c2 = -1*(-0.95 + 0.31j)
 	#c3 = -1*(np.power(-0.95 + 0.31j,-1))
-	c2 = -1*(0 + 1j)
-	c3 = -1*(np.power(0 + 1j,-1))
+	#c2 = -1*(0.8+0.68j)
+	c2 = -1*(0+1j)
+	c3 = -1*(np.power(-1.0488 -0.10805j,-1))
 	c4 = 1 + 0j
 	#print c3
 	for i in range (0,512):
@@ -103,9 +104,9 @@ for zz in range(0,16):
 powerCoeff = np.sqrt(absQacc/absIacc)
 phaseCoeff = np.unwrap(1*np.angle(cross_powerIQ))
 combCoeff = powerCoeff*np.exp(1j*(phaseCoeff))
-print combCoeff[50]
-print combCoeff[51]
-print combCoeff[52]
+print combCoeff[25]
+print combCoeff[26]
+print combCoeff[27]
 print combCoeff[400]
 
 plt.figure()

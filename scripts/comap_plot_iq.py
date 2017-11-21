@@ -20,13 +20,14 @@ else:
     
 # setup initial parameters
 numTones=2048
+#numTones=5
 combCoeff = np.zeros((1024,numTones)) + 1j*np.zeros((1024,numTones))
 combCoeffSingle = np.zeros(numTones) + 1j*np.zeros(numTones)
 ssbI = np.zeros((1024,numTones))
 ssbQ = np.zeros((1024,numTones))
 
 hittiteFreq = 2e9
-hittitePower = 0
+hittitePower = -15
 hittiteIp = '192.168.43.102'
 freqInc = 0.9765625e6*2
 # initialise hittite
@@ -187,47 +188,46 @@ def defCoeffs23():
         coeffStr2 = struct.pack('>1024L',*coeffArray2)
         coeffStr3 = struct.pack('>1024L',*coeffArray3)
 
-        fpga.write('c2_0',coeffStr2[0:128])
+        fpga.write('c2_7',coeffStr2[127::-1],4)
         time.sleep(0.5)
-        fpga.write('c2_1',coeffStr2[128:128*2])
+        fpga.write('c2_6',coeffStr2[(127+128):127:-1],4)
         time.sleep(0.5)
-        fpga.write('c2_2',coeffStr2[128*2:128*3])
+        fpga.write('c2_5',coeffStr2[(127+128*2):(127+128):-1],4)
         time.sleep(0.5)
-        fpga.write('c2_3',coeffStr2[128*3:128*4])
+        fpga.write('c2_4',coeffStr2[(127+128*3):(127+128*2):-1],4)
         time.sleep(0.5)
-        fpga.write('c2_4',coeffStr2[128*4:128*5])
+        fpga.write('c2_3',coeffStr2[(127+128*4):(127+128*3):-1],4)
         time.sleep(0.5)
-        fpga.write('c2_5',coeffStr2[128*5:128*6])
+        fpga.write('c2_2',coeffStr2[(127+128*5):(127+128*4):-1],4)
         time.sleep(0.5)
-        fpga.write('c2_6',coeffStr2[128*6:128*7])
+        fpga.write('c2_1',coeffStr2[(127+128*6):(127+128*5):-1],4)
         time.sleep(0.5)
-        fpga.write('c2_7',coeffStr2[128*7:128*8])
-        time.sleep(0.5)
-
-        fpga.write('c3_0',coeffStr3[0:128])
-        time.sleep(0.5)
-        fpga.write('c3_1',coeffStr3[128:128*2])
-        time.sleep(0.5)
-        fpga.write('c3_2',coeffStr3[128*2:128*3])
-        time.sleep(0.5)
-        fpga.write('c3_3',coeffStr3[128*3:128*4])
-        time.sleep(0.5)
-        fpga.write('c3_4',coeffStr3[128*4:128*5])
-        time.sleep(0.5)
-        fpga.write('c3_5',coeffStr3[128*5:128*6])
-        time.sleep(0.5)
-        fpga.write('c3_6',coeffStr3[128*6:128*7])
-        time.sleep(0.5)
-        fpga.write('c3_7',coeffStr3[128*7:128*8])
+        fpga.write('c2_0',coeffStr2[(127+128*7):(127+128*6):-1],4)
         time.sleep(0.5)
 
+        fpga.write('c3_0',coeffStr3[0:128],4)
+        time.sleep(0.5)
+        fpga.write('c3_1',coeffStr3[128:128*2],4)
+        time.sleep(0.5)
+        fpga.write('c3_2',coeffStr3[128*2:128*3],4)
+        time.sleep(0.5)
+        fpga.write('c3_3',coeffStr3[128*3:128*4],4)
+        time.sleep(0.5)
+        fpga.write('c3_4',coeffStr3[128*4:128*5],4)
+        time.sleep(0.5)
+        fpga.write('c3_5',coeffStr3[128*5:128*6],4)
+        time.sleep(0.5)
+        fpga.write('c3_6',coeffStr3[128*6:128*7],4)
+        time.sleep(0.5)
+        fpga.write('c3_7',coeffStr3[128*7:128*8],4)
+        time.sleep(0.5)
 
 
 # trigger all the snap blocks
 def genCoeffs():
 	for toneIter in range(0,numTones):
 		
-	
+		print toneIter	
 		time.sleep(0.1)
 		fpga.write_int('snap_inp1_ctrl',0)
 		fpga.write_int('snap_inp2_ctrl',0)
@@ -358,20 +358,21 @@ def genCoeffs():
 		#c2 = 0 + 0j
 		#c3 = 0 + 0j
 		#c4 = 1 + 1j
+	        bramsnapX_float = bramsnapX.real.astype(np.float) + 1j*bramsnapX.imag.astype(np.float)
 		
-		ssbI[:,toneIter] = bramsnapI
-		ssbQ[:,toneIter] = bramsnapQ
-		powerCoeff = np.sqrt(bramsnapQ/bramsnapI)
-		phaseCoeff = np.unwrap(1*np.angle(bramsnapX))
+		ssbI[:,toneIter] = bramsnapI.astype(np.float)
+		ssbQ[:,toneIter] = bramsnapQ.astype(np.float)
+		powerCoeff = np.sqrt(bramsnapQ.astype(np.float)/bramsnapI.astype(np.float))
+		phaseCoeff = np.unwrap(1*np.angle(bramsnapX_float))
 		
 		
 		# write to memory combCoeff for each channel
 		# will be a 1024x1024 array
 		combCoeff[:,toneIter] = powerCoeff*np.exp(1j*(phaseCoeff))
-		if toneIter < 1024:
-			combCoeffSingle[toneIter] = powerCoeff[toneIter]*np.exp(1j*(phaseCoeff[toneIter]))
-		else:
-			combCoeffSingle[toneIter] = powerCoeff[toneIter-1024]*np.exp(1j*(phaseCoeff[toneIter-1024]))
+		#if toneIter < 1024:
+		#	combCoeffSingle[toneIter] = powerCoeff[toneIter]*np.exp(1j*(phaseCoeff[toneIter]))
+		#else:
+		#	combCoeffSingle[toneIter] = powerCoeff[toneIter-1024]*np.exp(1j*(phaseCoeff[toneIter-1024]))
 		hittite.setAll(hittiteFreq+((toneIter+1)*freqInc),hittitePower,'on',hittiteIp,50000,doPrint=True,ret=False)
 
 
@@ -396,5 +397,6 @@ def writeFiles():
 defCoeffs()
 genCoeffs()
 writeFiles()
-defCoeffs14()
-defCoeffs23()
+#print combCoeff
+#defCoeffs14()
+#defCoeffs23()

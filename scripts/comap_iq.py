@@ -3,7 +3,7 @@
 import corr, time, struct, sys, logging, socket
 import numpy as np
 import matplotlib.pyplot as plt
-#import hittite
+import hittite
 
 roach = '192.168.42.65'
 
@@ -245,7 +245,7 @@ def triggerCross():
 	fpga.write_int('snap_inp15x_ctrl',1)
 	fpga.write_int('snap_inp16x_ctrl',1)
 
-def snapTot():
+def snapTot2():
 	#
 	bramsnap1 = struct.unpack('>128Q',fpga.read('snap_inp1_bram',128*8))
 	bramsnap2 = struct.unpack('>128Q',fpga.read('snap_inp2_bram',128*8))
@@ -265,7 +265,7 @@ def snapTot():
 	bramsnap7a = struct.unpack('>128Q',fpga.read('snap_inp15_bram',128*8))
 	bramsnap8a = struct.unpack('>128Q',fpga.read('snap_inp14_bram',128*8))
 
-def snapCross():
+#def snapCross():
 	bramsnap1x = struct.unpack('>128q',fpga.read('snap_inp1x_bram',128*8))
 	bramsnap2x = struct.unpack('>128q',fpga.read('snap_inp2x_bram',128*8))
 	bramsnap3x = struct.unpack('>128q',fpga.read('snap_inp3x_bram',128*8))
@@ -284,73 +284,267 @@ def snapCross():
 	bramsnap15x = struct.unpack('>128q',fpga.read('snap_inp15x_bram',128*8))
 	bramsnap16x = struct.unpack('>128q',fpga.read('snap_inp14x_bram',128*8))
 
-def calcCoeffs():
+#def calcCoeffs():
 	
-	for i in range(0,128):
+	for i in range(98,104):
 
-		total_powerI[j] = float(bramsnap1[i])/2**34
-		total_powerQ[j] = float(bramsnap1a[i])/2**34
-		total_powerI[j+1] = float(bramsnap1[i])/2**34
-		total_powerQ[j+1] = float(bramsnap1a[i])/2**34
-		j=j+8
+#		total_powerQ[j] = float(bramsnap1a[i])/2**34
+#		total_powerI[j+1] = float(bramsnap1[i])/2**34
+#		total_powerQ[j+1] = float(bramsnap1a[i])/2**34
+#		j=j+8
 	#	cross_power1 = complex(bramsnap1x[i]/2**34,bramsnap2x[i]/2**34);
-	#	print 'i: '+str(i)+'  real: '+str((float(bramsnap1x[i])/2**34))+'  imag: '+str(float(bramsnap2x[i])/2**34)+'  totalI: '+str((float(bramsnap1[i])/2**34))+'  totalQ: '+str(float(bramsnap1a[i])/2**34)
+		#print 'i: '+str(i)+'  real: '+str((float(bramsnap1x[i])/2**34))+'  imag: '+str(float(bramsnap2x[i])/2**34)+'  totalI: '+str((float(bramsnap1[i])/2**34))+'  totalQ: '+str(float(bramsnap1a[i])/2**34)
+		print 'i: '+str(i)+'  pow: '+str((float(bramsnap1[i])/2**34))
 	
-	#cross_power2 = bramsnap3x + 1j*bramsnap4x;
-	#cross_power3 = bramsnap5x + 1j*bramsnap6x;
-	#cross_power4 = bramsnap7x + 1j*bramsnap8x;
-	#cross_power5 = bramsnap9x + 1j*bramsnap10x;
-	#cross_power6 = bramsnap11x + 1j*bramsnap12x;
-	#cross_power7 = bramsnap13x + 1j*bramsnap14x;
-	#cross_power8 = bramsnap15x + 1j*bramsnap16x;
+#	cross_power1 = bramsnap1x + 1j*bramsnap2x;
+#	cross_power2 = bramsnap3x + 1j*bramsnap4x;
+#	cross_power3 = bramsnap5x + 1j*bramsnap6x;
+#	cross_power4 = bramsnap7x + 1j*bramsnap8x;
+#	cross_power5 = bramsnap9x + 1j*bramsnap10x;
+#	cross_power6 = bramsnap11x + 1j*bramsnap12x;
+#	cross_power7 = bramsnap13x + 1j*bramsnap14x;
+#	cross_power8 = bramsnap15x + 1j*bramsnap16x;
 	#
 	#total_powerI = np.concatenate([bramsnap1,bramsnap2,bramsnap3,bramsnap4,bramsnap5,bramsnap6,bramsnap7,bramsnap8])
 	#total_powerQ = np.concatenate([bramsnap1a,bramsnap2a,bramsnap3a,bramsnap4a,bramsnap5a,bramsnap6a,bramsnap7a,bramsnap8a])
 	
-	#cross_powerIQ = np.concatenate([cross_power1,cross_power2,cross_power3,cross_power4,cross_power5,cross_power6,cross_power7,cross_power8]); 
+#	cross_powerIQ = np.concatenate([cross_power1,cross_power2,cross_power3,cross_power4,cross_power5,cross_power6,cross_power7,cross_power8])
 	
 	# one channel offset due to bug in fpga code, fixed for v6
-	cross_powerIQ = complex(float(bramsnap1x[102])/2**34,float(bramsnap2x[102])/2**34)
+	#cross_powerIQ = complex(float(bramsnap5x[102])/2**34,float(bramsnap6x[102])/2**34)
+	total_powerI = float(bramsnap1[102])
+	total_powerQ = float(bramsnap1a[102])
+	cross_powerIQ = float(bramsnap1x[102])/2**34+ 1j*(float(bramsnap2x[102])/2**34)
+	#cross_powerIQ = float(bramsnap1x[51])+ 1j*(float(bramsnap2x[51]))
 	
-	print 'totalpowerI: '+str(total_powerI)+'  totalpowerQ: '+str(total_powerQ)+'  crosspowerIQ:'+str(cross_powerIQ)
+	#print 'totalpowerI: '+str(total_powerI)+'  totalpowerQ: '+str(total_powerQ)+'  crosspowerIQ:'+str(cross_powerIQ)
 	powerCoeff = np.sqrt(total_powerQ/total_powerI)
 	#phaseCoeff = np.unwrap(1*np.angle(cross_powerIQ))
 	phaseCoeff =np.angle(cross_powerIQ)
 	combCoeff =powerCoeff*np.exp(1j*(phaseCoeff))
 	
-	print 'powerCoeff: '+str(powerCoeff)+'  phaseCoeff: '+str(phaseCoeff)+'  combCoeff:'+str(combCoeff)
-	
+	#print 'powerCoeff: '+str(powerCoeff)+'  phaseCoeff: '+str(phaseCoeff)+'  combCoeff:'+str(combCoeff)
+	print 'combCoeff:'+str(combCoeff)
+ 	#combCoeff = -1.04507 -0.12333j	
 	combCoeff2 = -1*(combCoeff)
 	combCoeff3 = -1*(np.power(combCoeff,-1))
+	print 'combCoeff2.real' + str(combCoeff2.real) + '  combCoeffs2.real*2**14:' +str(combCoeff2.real*2**14) 
 	coeffs2r = np.binary_repr(np.int16(combCoeff2.real*2**14),16)
 	coeffs2i = np.binary_repr(np.int16(combCoeff2.imag*2**14),16)
 	coeffs3r = np.binary_repr(np.int16(combCoeff3.real*2**14),16)
 	coeffs3i = np.binary_repr(np.int16(combCoeff3.imag*2**14),16)
 	coeffs2 = (coeffs2r + coeffs2i)
 	coeffs3 = (coeffs3r + coeffs3i)
+	print 'int16combCoeff2.real' + str(np.int16(combCoeff2.real)) + '  int16combCoeffs2.real*2**14:' +str(np.int16(combCoeff2.real*2**14)) 
+	#print coeffs2r
+	#print coeffs3
 	coeffs2 = int(coeffs2,2)
+	#print str(coeffs2)
 	coeffs3 = int(coeffs3,2)
 	coeffArray2 = np.ones(1024,'L')*coeffs2
+	real = '0000000000000000'
+	imag = '0100000000000000'
+	coeff0 = (real + imag)
+	coeff0 = int(coeff0,2)
+	coeffArray = np.ones(1024,'I')*coeff0
+	coeffStr = struct.pack('>1024I',*coeffArray)
 	coeffArray3 = np.ones(1024,'L')*coeffs3
 	#coeffArray2 = np.zeros(1024,'l')*coeffs2
 	#coeffArray3 = np.zeros(1024,'l')*coeffs3
 	coeffStr2 = struct.pack('>1024L',*coeffArray2)
 	coeffStr3 = struct.pack('>1024L',*coeffArray3)
+	return coeffStr2
+	#fpga.write('c2_0',coeffStr2)
+	#fpga.write('c2_0',coeffStr2)
+	#time.sleep(0.5)
+	#fpga.write('c3_0',coeffStr3)
+	#time.sleep(0.5)
+	#fpga.write('c3_1',coeffStr3)
+	#time.sleep(0.5)
+	#fpga.write('c3_2',coeffStr3)
+	#time.sleep(0.5)
+	#fpga.write('c3_3',coeffStr3)
+	#time.sleep(0.5)
+	#fpga.write('c3_4',coeffStr3)
+	#time.sleep(0.5)
+	#fpga.write('c3_5',coeffStr3)
+	#time.sleep(0.5)
+	#fpga.write('c3_6',coeffStr3)
+	#time.sleep(0.5)
+	#fpga.write('c3_7',coeffStr3)
+	#time.sleep(0.5)
 
+	#real = '0100000000000000'
+	#imag = '0000000000000000'
+	#coeff0 = (real + imag)
+	#coeff0 = int(coeff0,2)
+	#coeffArray = np.ones(1024,'I')*coeff0
+	#coeffStr = struct.pack('>1024I',*coeffArray)
+	#fpga.write('c1_0',coeffStr)
+	#time.sleep(0.5)
+	#fpga.write('c4_0',coeffStr)
+	#time.sleep(0.5)
 #
-#import h5py
-#filename = 'file.hdf5'
-#f = h5py.File(filename, 'r')
-#
-## List all groups
-#print("Keys: %s" % f.keys())
-#a_group_key = f.keys()[0]
-#
-## Get the data
-#data = list(f[a_group_key])
+def snapTot3():
+	#
+	bramsnap1 = struct.unpack('>128Q',fpga.read('snap_inp1_bram',128*8))
+	bramsnap2 = struct.unpack('>128Q',fpga.read('snap_inp2_bram',128*8))
+	bramsnap3 = struct.unpack('>128Q',fpga.read('snap_inp3_bram',128*8))
+	bramsnap4 = struct.unpack('>128Q',fpga.read('snap_inp4_bram',128*8))
+	bramsnap5 = struct.unpack('>128Q',fpga.read('snap_inp5_bram',128*8))
+	bramsnap6 = struct.unpack('>128Q',fpga.read('snap_inp6_bram',128*8))
+	bramsnap7 = struct.unpack('>128Q',fpga.read('snap_inp7_bram',128*8))
+	bramsnap8 = struct.unpack('>128Q',fpga.read('snap_inp8_bram',128*8))
+	
+	bramsnap1a = struct.unpack('>128Q',fpga.read('snap_inp9_bram',128*8))
+	bramsnap2a = struct.unpack('>128Q',fpga.read('snap_inp10_bram',128*8))
+	bramsnap3a = struct.unpack('>128Q',fpga.read('snap_inp12_bram',128*8))
+	bramsnap4a = struct.unpack('>128Q',fpga.read('snap_inp11_bram',128*8))
+	bramsnap5a = struct.unpack('>128Q',fpga.read('snap_inp16_bram',128*8))
+	bramsnap6a = struct.unpack('>128Q',fpga.read('snap_inp13_bram',128*8))
+	bramsnap7a = struct.unpack('>128Q',fpga.read('snap_inp15_bram',128*8))
+	bramsnap8a = struct.unpack('>128Q',fpga.read('snap_inp14_bram',128*8))
 
+#def snapCross():
+	bramsnap1x = struct.unpack('>128q',fpga.read('snap_inp1x_bram',128*8))
+	bramsnap2x = struct.unpack('>128q',fpga.read('snap_inp2x_bram',128*8))
+	bramsnap3x = struct.unpack('>128q',fpga.read('snap_inp3x_bram',128*8))
+	bramsnap4x = struct.unpack('>128q',fpga.read('snap_inp4x_bram',128*8))
+	bramsnap5x = struct.unpack('>128q',fpga.read('snap_inp5x_bram',128*8))
+	bramsnap6x = struct.unpack('>128q',fpga.read('snap_inp6x_bram',128*8))
+	bramsnap7x = struct.unpack('>128q',fpga.read('snap_inp7x_bram',128*8))
+	bramsnap8x = struct.unpack('>128q',fpga.read('snap_inp8x_bram',128*8))
+	
+	bramsnap9x = struct.unpack('>128q',fpga.read('snap_inp9x_bram',128*8))
+	bramsnap10x = struct.unpack('>128q',fpga.read('snap_inp10x_bram',128*8))
+	bramsnap11x = struct.unpack('>128q',fpga.read('snap_inp12x_bram',128*8))
+	bramsnap12x = struct.unpack('>128q',fpga.read('snap_inp11x_bram',128*8))
+	bramsnap13x = struct.unpack('>128q',fpga.read('snap_inp16x_bram',128*8))
+	bramsnap14x = struct.unpack('>128q',fpga.read('snap_inp13x_bram',128*8))
+	bramsnap15x = struct.unpack('>128q',fpga.read('snap_inp15x_bram',128*8))
+	bramsnap16x = struct.unpack('>128q',fpga.read('snap_inp14x_bram',128*8))
 
-# c2: 0-7: reversed?
-# c3: 0-7: normal? (or switch reverse).
-#	
-defCoeffs()	
+#def calcCoeffs():
+	
+	for i in range(98,104):
+
+#		total_powerQ[j] = float(bramsnap1a[i])/2**34
+#		total_powerI[j+1] = float(bramsnap1[i])/2**34
+#		total_powerQ[j+1] = float(bramsnap1a[i])/2**34
+#		j=j+8
+	#	cross_power1 = complex(bramsnap1x[i]/2**34,bramsnap2x[i]/2**34);
+		#print 'i: '+str(i)+'  real: '+str((float(bramsnap1x[i])/2**34))+'  imag: '+str(float(bramsnap2x[i])/2**34)+'  totalI: '+str((float(bramsnap1[i])/2**34))+'  totalQ: '+str(float(bramsnap1a[i])/2**34)
+		print 'i: '+str(i)+'  pow: '+str((float(bramsnap1[i])/2**34))
+	
+#	cross_power1 = bramsnap1x + 1j*bramsnap2x;
+#	cross_power2 = bramsnap3x + 1j*bramsnap4x;
+#	cross_power3 = bramsnap5x + 1j*bramsnap6x;
+#	cross_power4 = bramsnap7x + 1j*bramsnap8x;
+#	cross_power5 = bramsnap9x + 1j*bramsnap10x;
+#	cross_power6 = bramsnap11x + 1j*bramsnap12x;
+#	cross_power7 = bramsnap13x + 1j*bramsnap14x;
+#	cross_power8 = bramsnap15x + 1j*bramsnap16x;
+	#
+	#total_powerI = np.concatenate([bramsnap1,bramsnap2,bramsnap3,bramsnap4,bramsnap5,bramsnap6,bramsnap7,bramsnap8])
+	#total_powerQ = np.concatenate([bramsnap1a,bramsnap2a,bramsnap3a,bramsnap4a,bramsnap5a,bramsnap6a,bramsnap7a,bramsnap8a])
+	
+#	cross_powerIQ = np.concatenate([cross_power1,cross_power2,cross_power3,cross_power4,cross_power5,cross_power6,cross_power7,cross_power8])
+	
+	# one channel offset due to bug in fpga code, fixed for v6
+	#cross_powerIQ = complex(float(bramsnap5x[102])/2**34,float(bramsnap6x[102])/2**34)
+	total_powerI = float(bramsnap1[102])
+	total_powerQ = float(bramsnap1a[102])
+	cross_powerIQ = float(bramsnap1x[102])/2**34+ 1j*(float(bramsnap2x[102])/2**34)
+	#cross_powerIQ = float(bramsnap1x[51])+ 1j*(float(bramsnap2x[51]))
+	
+	#print 'totalpowerI: '+str(total_powerI)+'  totalpowerQ: '+str(total_powerQ)+'  crosspowerIQ:'+str(cross_powerIQ)
+	powerCoeff = np.sqrt(total_powerQ/total_powerI)
+	#phaseCoeff = np.unwrap(1*np.angle(cross_powerIQ))
+	phaseCoeff =np.angle(cross_powerIQ)
+	combCoeff =powerCoeff*np.exp(1j*(phaseCoeff))
+	
+	#print 'powerCoeff: '+str(powerCoeff)+'  phaseCoeff: '+str(phaseCoeff)+'  combCoeff:'+str(combCoeff)
+	print 'combCoeff:'+str(combCoeff)
+ 	#combCoeff = -1.04507 -0.12333j	
+	combCoeff2 = -1*(combCoeff)
+	combCoeff3 = -1*(np.power(combCoeff,-1))
+	print 'combCoeff2.real' + str(combCoeff2.real) + '  combCoeffs2.real*2**14:' +str(combCoeff2.real*2**14) 
+	coeffs2r = np.binary_repr(np.int16(combCoeff2.real*2**14),16)
+	coeffs2i = np.binary_repr(np.int16(combCoeff2.imag*2**14),16)
+	coeffs3r = np.binary_repr(np.int16(combCoeff3.real*2**14),16)
+	coeffs3i = np.binary_repr(np.int16(combCoeff3.imag*2**14),16)
+	coeffs2 = (coeffs2r + coeffs2i)
+	coeffs3 = (coeffs3r + coeffs3i)
+	print 'int16combCoeff2.real' + str(np.int16(combCoeff2.real)) + '  int16combCoeffs2.real*2**14:' +str(np.int16(combCoeff2.real*2**14)) 
+	#print coeffs2r
+	#print coeffs3
+	coeffs2 = int(coeffs2,2)
+	#print str(coeffs2)
+	coeffs3 = int(coeffs3,2)
+	coeffArray2 = np.ones(1024,'L')*coeffs2
+	real = '0000000000000000'
+	imag = '0100000000000000'
+	coeff0 = (real + imag)
+	coeff0 = int(coeff0,2)
+	coeffArray = np.ones(1024,'I')*coeff0
+	coeffStr = struct.pack('>1024I',*coeffArray)
+	coeffArray3 = np.ones(1024,'L')*coeffs3
+	#coeffArray2 = np.zeros(1024,'l')*coeffs2
+	#coeffArray3 = np.zeros(1024,'l')*coeffs3
+	coeffStr2 = struct.pack('>1024L',*coeffArray2)
+	coeffStr3 = struct.pack('>1024L',*coeffArray3)
+	return coeffStr3
+	#fpga.write('c2_0',coeffStr2)
+
+def writeCoeffs(ceoffs2,coeffs3):
+	fpga.write('c2_0',coeffs2)
+	time.sleep(0.5)
+	fpga.write('c3_0',coeffs3)
+	time.sleep(0.5)
+#	fpga.write('c3_1',coeffStr3)
+#	time.sleep(0.5)
+#	fpga.write('c3_2',coeffStr3)
+#	time.sleep(0.5)
+#	fpga.write('c3_3',coeffStr3)
+#	time.sleep(0.5)
+#	fpga.write('c3_4',coeffStr3)
+#	time.sleep(0.5)
+#	fpga.write('c3_5',coeffStr3)
+#	time.sleep(0.5)
+#	fpga.write('c3_6',coeffStr3)
+#	time.sleep(0.5)
+#	fpga.write('c3_7',coeffStr3)
+#	time.sleep(0.5)
+
+	real = '0100000000000000'
+	imag = '0000000000000000'
+	coeff0 = (real + imag)
+	coeff0 = int(coeff0,2)
+	coeffArray = np.ones(1024,'I')*coeff0
+	coeffStr = struct.pack('>1024I',*coeffArray)
+	fpga.write('c1_0',coeffStr)
+	time.sleep(0.5)
+	fpga.write('c4_0',coeffStr)
+	time.sleep(0.5)
+
+hittiteFreq = 4.2e9
+hittitePower = -15
+hittiteIp = '192.168.43.102'
+hittite.setAll(hittiteFreq,hittitePower,'on',hittiteIp,50000,doPrint=True,ret=False)
+
+defCoeffs()
+triggerTot()
+triggerCross()
+coeffs3 = snapTot3()
+
+hittiteFreq = 3.8e9
+hittite.setAll(hittiteFreq,hittitePower,'on',hittiteIp,50000,doPrint=True,ret=False)
+
+defCoeffs()
+triggerTot()
+triggerCross()
+coeffs2 = snapTot2()
+
+writeCoeffs(coeffs2,coeffs3)
+#snapCross()
+	

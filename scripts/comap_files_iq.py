@@ -19,9 +19,9 @@ else:
     exit()
     
 # setup initial parameters
-numTones=2048
-combCoeff = np.zeros((1024,numTones)) + 1j*np.zeros((1024,numTones))
-combCoeffSingle = np.zeros(numTones) + 1j*np.zeros(numTones)
+#numTones=2048
+#combCoeff = np.zeros((1024,numTones)) + 1j*np.zeros((1024,numTones))
+#combCoeffSingle = np.zeros(numTones) + 1j*np.zeros(numTones)
 
 
 def defCoeffs14():
@@ -68,7 +68,7 @@ def defCoeffs14():
         fpga.write('c4_7',coeffStr)
 
 
-def defCoeffs23():
+def defCoeffs23(combCoeffSingle):
 	coeff2 = -1*(combCoeffSingle[0:1024])
 	coeff3 = -1*(np.power(combCoeffSingle[1024:2048],-1))
 	coeff3 = np.nan_to_num(coeff3)
@@ -94,58 +94,138 @@ def defCoeffs23():
         coeffStr2 = struct.pack('>1024L',*coeffArray2)
         coeffStr3 = struct.pack('>1024L',*coeffArray3)
 
-        fpga.write('c2_0',coeffStr2[0:128])
+        #fpga.write('c2_7',coeffStr2[127::-1])
+        #time.sleep(0.5)
+        #fpga.write('c2_6',coeffStr2[(127+128):127:-1])
+        #time.sleep(0.5)
+        #fpga.write('c2_5',coeffStr2[(127+128*2):(127+128):-1])
+        #time.sleep(0.5)
+        #fpga.write('c2_4',coeffStr2[(127+128*3):(127+128*2):-1])
+        #time.sleep(0.5)
+        #fpga.write('c2_3',coeffStr2[(127+128*4):(127+128*3):-1])
+        #time.sleep(0.5)
+        #fpga.write('c2_2',coeffStr2[(127+128*5):(127+128*4):-1])
+        #time.sleep(0.5)
+        #fpga.write('c2_1',coeffStr2[(127+128*6):(127+128*5):-1])
+        #time.sleep(0.5)
+        #fpga.write('c2_0',coeffStr2[(127+128*7):(127+128*6):-1])
+        #time.sleep(0.5)
+	tmp = np.roll(coeffArray2[0:128],-1)
+	tmp_write = struct.pack('>128L',*tmp)
+        fpga.write('c2_0',tmp_write)
         time.sleep(0.5)
-        fpga.write('c2_1',coeffStr2[128:128*2])
+        tmp = np.roll(coeffArray2[128:128*2],-1)
+	tmp_write = struct.pack('>128L',*tmp)
+        fpga.write('c2_1',tmp_write)
         time.sleep(0.5)
-        fpga.write('c2_2',coeffStr2[128*2:128*3])
+        tmp = np.roll(coeffArray2[128*2:128*3],-1)
+	tmp_write = struct.pack('>128L',*tmp)
+        fpga.write('c2_2',tmp_write)
         time.sleep(0.5)
-        fpga.write('c2_3',coeffStr2[128*3:128*4])
+        tmp = np.roll(coeffArray2[128*3:128*4],-1)
+	tmp_write = struct.pack('>128L',*tmp)
+        fpga.write('c2_3',tmp_write)
         time.sleep(0.5)
-        fpga.write('c2_4',coeffStr2[128*4:128*5])
+        tmp = np.roll(coeffArray2[128*4:128*5],-1)
+	tmp_write = struct.pack('>128L',*tmp)
+        fpga.write('c2_4',tmp_write)
         time.sleep(0.5)
-        fpga.write('c2_5',coeffStr2[128*5:128*6])
+        tmp = np.roll(coeffArray2[128*5:128*6],-1)
+	tmp_write = struct.pack('>128L',*tmp)
+        fpga.write('c2_5',tmp_write)
         time.sleep(0.5)
-        fpga.write('c2_6',coeffStr2[128*6:128*7])
+        tmp = np.roll(coeffArray2[128*6:128*7],-1)
+	tmp_write = struct.pack('>128L',*tmp)
+        fpga.write('c2_6',tmp_write)
         time.sleep(0.5)
-        fpga.write('c2_7',coeffStr2[128*7:128*8])
+        tmp = np.roll(coeffArray2[128*7:128*8],-1)
+	tmp_write = struct.pack('>128L',*tmp)
+        fpga.write('c2_7',tmp_write)
         time.sleep(0.5)
 
-        fpga.write('c3_0',coeffStr3[0:128])
+	tmp = np.roll(coeffArray3[0:128],-1)
+	tmp_write = struct.pack('>128L',*tmp)
+        fpga.write('c3_0',tmp_write)
         time.sleep(0.5)
-        fpga.write('c3_1',coeffStr3[128:128*2])
+        tmp = np.roll(coeffArray3[128:128*2],-1)
+	tmp_write = struct.pack('>128L',*tmp)
+        fpga.write('c3_1',tmp_write)
         time.sleep(0.5)
-        fpga.write('c3_2',coeffStr3[128*2:128*3])
+        tmp = np.roll(coeffArray3[128*2:128*3],-1)
+	tmp_write = struct.pack('>128L',*tmp)
+        fpga.write('c3_2',tmp_write)
         time.sleep(0.5)
-        fpga.write('c3_3',coeffStr3[128*3:128*4])
+        tmp = np.roll(coeffArray3[128*3:128*4],-1)
+	tmp_write = struct.pack('>128L',*tmp)
+        fpga.write('c3_3',tmp_write)
         time.sleep(0.5)
-        fpga.write('c3_4',coeffStr3[128*4:128*5])
+        tmp = np.roll(coeffArray3[128*4:128*5],-1)
+	tmp_write = struct.pack('>128L',*tmp)
+        fpga.write('c3_4',tmp_write)
         time.sleep(0.5)
-        fpga.write('c3_5',coeffStr3[128*5:128*6])
+        tmp = np.roll(coeffArray3[128*5:128*6],-1)
+	tmp_write = struct.pack('>128L',*tmp)
+        fpga.write('c3_5',tmp_write)
         time.sleep(0.5)
-        fpga.write('c3_6',coeffStr3[128*6:128*7])
+        tmp = np.roll(coeffArray3[128*6:128*7],-1)
+	tmp_write = struct.pack('>128L',*tmp)
+        fpga.write('c3_6',tmp_write)
         time.sleep(0.5)
-        fpga.write('c3_7',coeffStr3[128*7:128*8])
+        tmp = np.roll(coeffArray3[128*7:128*8],-1)
+	tmp_write = struct.pack('>128L',*tmp)
+        fpga.write('c3_7',tmp_write)
         time.sleep(0.5)
+#        fpga.write('c3_0',coeffStr3[0:128])
+#        time.sleep(0.5)
+#        fpga.write('c3_1',coeffStr3[128:128*2])
+#        time.sleep(0.5)
+#        fpga.write('c3_2',coeffStr3[128*2:128*3])
+#        time.sleep(0.5)
+#        fpga.write('c3_3',coeffStr3[128*3:128*4])
+#        time.sleep(0.5)
+#        fpga.write('c3_4',coeffStr3[128*4:128*5])
+#        time.sleep(0.5)
+#        fpga.write('c3_5',coeffStr3[128*5:128*6])
+#        time.sleep(0.5)
+#        fpga.write('c3_6',coeffStr3[128*6:128*7])
+#        time.sleep(0.5)
+#        fpga.write('c3_7',coeffStr3[128*7:128*8])
+#        time.sleep(0.5)
+#
 
-
-def populateSingle():
-	for toneIter in range(0,numTones):
+def populateSingle(combCoeff):
+	numTones = 2048
+	combCoeffSingle = np.zeros(numTones) + 1j*np.zeros(numTones)
+	for toneIter in range(0,numTones-2):
 		if toneIter < 1024:
-			combCoeffSingle[toneIter] = combCoeff[toneIter,toneIter]
+			#combCoeffSingle[toneIter] = combCoeff[1023-toneIter,toneIter+1]
+			#combCoeffSingle[1023-toneIter] = combCoeff[toneIter,1024-toneIter]
+			combCoeffSingle[1023-toneIter] = combCoeff[1023-toneIter,toneIter+1]
+			#print  "index:" + str(1023-toneIter) + "  read1: " + str(1023 - toneIter) + "  read2: " + str(toneIter+1)
 		else:
-			combCoeffSingle[toneIter] = combCoeff[toneIter-1024,toneIter]
-
+			combCoeffSingle[toneIter] = combCoeff[toneIter-1023,toneIter+1]
+			#print combCoeffSingle[toneIter]
+	return combCoeffSingle
 
 def readFiles():
 	filename = 'combCoeff.h5'
 	f_data = h5py.File(filename,'r')
 	f_key = f_data.keys()[0]
 	#print f_data.keys()
-	combCoeff = list(f_data[f_key])
-	#print combCoeff
+	#combCoeff = list(f_data[f_key])
+	combCoeff = np.array(f_data[f_key])
+	return combCoeff
 
-readFiles()
-populateSingle()
-#defCoeffs14()
-defCoeffs23()
+combCoeff = readFiles()
+
+#plt.imshow(combCoeff.real)
+#plt.plot(combCoeff[1,:].real)
+#plt.show()
+#print combCoeff[1025,100]
+
+combCoeffSingle = populateSingle(combCoeff)
+#plt.plot(combCoeffSingle.real)
+#plt.plot(combCoeffSingle.imag)
+#plt.show()
+defCoeffs14()
+defCoeffs23(combCoeffSingle)
