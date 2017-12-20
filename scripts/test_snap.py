@@ -25,26 +25,30 @@ bramsnapQ = np.zeros(1024)
 # trigger all the snap blocks
 
 
+fpga.write_int('in1',2**24+2**16+2**8+2**1)
+fpga.write_int('in2',2**24+2**16+2**8+2**1+1)
+fpga.write_int('in3',2**24+2**16+2**8+2**1+2)
+fpga.write_int('in4',2**24+2**16+2**8+2**1+3)
+fpga.write_int('in5',2**24+2**16+2**8+2**1+4)
+fpga.write_int('in6',2**24+2**16+2**8+2**1+5)
+fpga.write_int('in7',2**24+2**16+2**8+2**1+6)
+fpga.write_int('in8',2**24+2**16+2**8+2**1+7)
+
+
+
 time.sleep(0.1)
 fpga.write_int('snap_inp1_ctrl',0)
 fpga.write_int('snap_inp2_ctrl',0)
-fpga.write_int('snap_inp3_ctrl',0)
-fpga.write_int('snap_inp4_ctrl',0)
 
 time.sleep(0.1)
-fpga.write_int('snap_inp1_ctrl',1)
-fpga.write_int('snap_inp2_ctrl',1)
-fpga.write_int('snap_inp3_ctrl',1)
-fpga.write_int('snap_inp4_ctrl',1)
+fpga.write_int('snap_inp1_ctrl',3)
+fpga.write_int('snap_inp2_ctrl',3)
 
 
 # each bram holds 128 32-bit numbers for 4 steams.
 time.sleep(0.1)
 bramsnap1 = struct.unpack('>512I',fpga.read('snap_inp1_bram',128*8*2))
 bramsnap2 = struct.unpack('>512I',fpga.read('snap_inp2_bram',128*8*2))
-
-bramsnap3 = struct.unpack('>512I',fpga.read('snap_inp3_bram',128*8*2))
-bramsnap4 = struct.unpack('>512I',fpga.read('snap_inp4_bram',128*8*2))
 
 
 j=0
@@ -60,27 +64,11 @@ for i in range(0,128):
 	bramsnapI[i+768] = bramsnap2[k+2]
 	bramsnapI[i+896] = bramsnap2[k+3]
 
-	bramsnapQ[i]     = bramsnap3[k]
-	bramsnapQ[i+128] = bramsnap3[k+1]
-	bramsnapQ[i+256] = bramsnap3[k+2]
-	bramsnapQ[i+384] = bramsnap3[k+3]
-
-	bramsnapQ[i+512] = bramsnap4[k]
-	bramsnapQ[i+640] = bramsnap4[k+1]
-	bramsnapQ[i+768] = bramsnap4[k+2]
-	bramsnapQ[i+896] = bramsnap4[k+3]
-
-	#j=j+8
 	k=k+4
 
 
-#bramsnapI = np.concatenate([bramsnap1,bramsnap2,bramsnap3,bramsnap4,bramsnap5,bramsnap6,bramsnap7,bramsnap8])
-#bramsnapQ = np.concatenate([bramsnap1a,bramsnap2a,bramsnap3a,bramsnap4a,bramsnap5a,bramsnap6a,bramsnap7a,bramsnap8a])
-
-plt.subplot(2,1,1)
-plt.semilogy((bramsnapI))
-plt.subplot(2,1,2)
-plt.semilogy((bramsnapQ))
+#plt.subplot(2,1,1)
+plt.plot((bramsnapI))
 plt.show()
 
 

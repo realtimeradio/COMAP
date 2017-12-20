@@ -17,8 +17,8 @@ else:
     
 # setup initial parameters
 fpga.write_int('fft_shift',65535)
-fpga.write_int('acc_len',65535)
-#fpga.write_int('acc_len',1023)
+fpga.write_int('acc_len',16385)
+#fpga.write_int('acc_len',16)
 
 # coefficients for separate spectrometer
 real = 0b0100000000000000
@@ -50,7 +50,12 @@ cstr0 = struct.pack('>1024l',*odata)
 #fpga.write('c4_7',cstr0)
 
 # trigger reset
+fpga.write_int('rst',0)
 fpga.write_int('rst',3)
 time.sleep(0.5)
 fpga.write_int('rst',0)
+fpga.write_int('force_sync',0)
+fpga.write_int('force_sync',3)
+time.sleep(0.5)
+fpga.write_int('force_sync',0)
 

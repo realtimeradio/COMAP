@@ -28,16 +28,14 @@ combCoeff = np.zeros((1024,numTones)) + 1j*np.zeros((1024,numTones))
 combCoeffSingle = np.zeros(numTones) + 1j*np.zeros(numTones)
 ssbI = np.zeros((1024,numTones))
 ssbQ = np.zeros((1024,numTones))
-rawRE = np.zeros((1024,numTones))
-rawIM = np.zeros((1024,numTones))
 ssbX = np.zeros((1024,numTones)) + 1j*np.zeros((1024,numTones)) 
 
 hittiteFreq = 2e9
-hittitePower = -10
+hittitePower = -20 
 hittiteIp = '192.168.43.102'
 freqInc = 0.9765625e6*2
 # initialise hittite
-hittite.setAll(hittiteFreq,hittitePower,'on',hittiteIp,50000,doPrint=True,ret=False)
+#hittite.setAll(hittiteFreq,hittitePower,'on',hittiteIp,50000,doPrint=True,ret=False)
 
 
 def defCoeffs():
@@ -232,132 +230,101 @@ def defCoeffs23():
 # trigger all the snap blocks
 def genCoeffs():
 	for toneIter in range(0,numTones):
+		if toneIter==0:	
+			print toneIter	
+			fpga.write_int('snap_inp1_ctrl',0)
+			fpga.write_int('snap_inp2_ctrl',0)
+			fpga.write_int('snap_inp3_ctrl',0)
+			fpga.write_int('snap_inp4_ctrl',0)
+			
+		        fpga.write_int('snap_inp1x_ctrl',0)
+		        fpga.write_int('snap_inp2x_ctrl',0)
+		        fpga.write_int('snap_inp3x_ctrl',0)
+		        fpga.write_int('snap_inp4x_ctrl',0)
+			
+			fpga.write_int('snap_inp1_ctrl',1)
+			fpga.write_int('snap_inp2_ctrl',1)
+			fpga.write_int('snap_inp3_ctrl',1)
+			fpga.write_int('snap_inp4_ctrl',1)
 		
-		time.sleep(0.5)
-		print toneIter	
-		fpga.write_int('snap_inp1_ctrl',0)
-		fpga.write_int('snap_inp2_ctrl',0)
-		fpga.write_int('snap_inp3_ctrl',0)
-		fpga.write_int('snap_inp4_ctrl',0)
+		        fpga.write_int('snap_inp1x_ctrl',1)
+		        fpga.write_int('snap_inp2x_ctrl',1)
+		        fpga.write_int('snap_inp3x_ctrl',1)
+		        fpga.write_int('snap_inp4x_ctrl',1)
 		
-	        fpga.write_int('snap_inp1x_ctrl',0)
-	        fpga.write_int('snap_inp2x_ctrl',0)
-	        fpga.write_int('snap_inp3x_ctrl',0)
-	        fpga.write_int('snap_inp4x_ctrl',0)
 		
-		fpga.write_int('snap_inp1_ctrl',1)
-		fpga.write_int('snap_inp2_ctrl',1)
-		fpga.write_int('snap_inp3_ctrl',1)
-		fpga.write_int('snap_inp4_ctrl',1)
+			#fpga.write_int('rst',3)
+			time.sleep(0.1)
+			#fpga.write_int('rst',0)
+			# each bram holds 128 64-bit numbers.
+			bramsnap1 = struct.unpack('>512I',fpga.read('snap_inp1_bram',128*8*2))
+			bramsnap2 = struct.unpack('>512I',fpga.read('snap_inp2_bram',128*8*2))
+			
+			bramsnap1a = struct.unpack('>512I',fpga.read('snap_inp3_bram',128*8*2))
+			bramsnap2a = struct.unpack('>512I',fpga.read('snap_inp4_bram',128*8*2))
+		
+		        bramsnap1x = struct.unpack('>512i',fpga.read('snap_inp1x_bram',128*8*2))
+		        bramsnap2x = struct.unpack('>512i',fpga.read('snap_inp2x_bram',128*8*2))
+		
+		        bramsnap3x = struct.unpack('>512i',fpga.read('snap_inp3x_bram',128*8*2))
+		        bramsnap4x = struct.unpack('>512i',fpga.read('snap_inp4x_bram',128*8*2))
 	
-	        fpga.write_int('snap_inp1x_ctrl',1)
-	        fpga.write_int('snap_inp2x_ctrl',1)
-	        fpga.write_int('snap_inp3x_ctrl',1)
-	        fpga.write_int('snap_inp4x_ctrl',1)
+			k=0
+			for i in range(0,128):
+				bramsnapI[i] = bramsnap1[k]
+				bramsnapI[i+128] = bramsnap1[k+1]	
+				bramsnapI[i+256] = bramsnap1[k+2]	
+				bramsnapI[i+384] = bramsnap1[k+3]	
+			
+				bramsnapI[i+512] = bramsnap2[k]
+				bramsnapI[i+640] = bramsnap2[k+1]	
+				bramsnapI[i+768] = bramsnap2[k+2]	
+				bramsnapI[i+896] = bramsnap2[k+3]	
 	
+				bramsnapQ[i] = bramsnap1a[k]
+				bramsnapQ[i+128] = bramsnap1a[k+1]	
+				bramsnapQ[i+256] = bramsnap1a[k+2]	
+				bramsnapQ[i+384] = bramsnap1a[k+3]	
+			
+				bramsnapQ[i+512] = bramsnap2a[k]
+				bramsnapQ[i+640] = bramsnap2a[k+1]	
+				bramsnapQ[i+768] = bramsnap2a[k+2]	
+				bramsnapQ[i+896] = bramsnap2a[k+3]	
+				k=k+4
 	
-		#fpga.write_int('rst',3)
-		time.sleep(0.1)
-		#fpga.write_int('rst',0)
-		# each bram holds 128 64-bit numbers.
-		bramsnap1 = struct.unpack('>512I',fpga.read('snap_inp1_bram',128*8*2))
-		bramsnap2 = struct.unpack('>512I',fpga.read('snap_inp2_bram',128*8*2))
-		
-		bramsnap1a = struct.unpack('>512I',fpga.read('snap_inp3_bram',128*8*2))
-		bramsnap2a = struct.unpack('>512I',fpga.read('snap_inp4_bram',128*8*2))
+			k=0
+			for i in range(0,128):
+				bramsnapX[i]     = bramsnap1x[k]   + 1j*bramsnap1x[k+1]
+				bramsnapX[i+128] = bramsnap1x[k+2] + 1j*bramsnap1x[k+3]
+			
+				bramsnapX[i+256] = bramsnap2x[k]   + 1j*bramsnap2x[k+1]
+				bramsnapX[i+384] = bramsnap2x[k+2] + 1j*bramsnap2x[k+3]
+			
+				bramsnapX[i+512] = bramsnap3x[k]   + 1j*bramsnap3x[k+1]
+				bramsnapX[i+640] = bramsnap3x[k+2] + 1j*bramsnap3x[k+3]
 	
-	        bramsnap1x = struct.unpack('>512i',fpga.read('snap_inp1x_bram',128*8*2))
-	        bramsnap2x = struct.unpack('>512i',fpga.read('snap_inp2x_bram',128*8*2))
+				bramsnapX[i+768] = bramsnap4x[k]   + 1j*bramsnap4x[k+1]
+				bramsnapX[i+896] = bramsnap4x[k+2] + 1j*bramsnap4x[k+3]
+				k=k+4
 	
-	        bramsnap3x = struct.unpack('>512i',fpga.read('snap_inp3x_bram',128*8*2))
-	        bramsnap4x = struct.unpack('>512i',fpga.read('snap_inp4x_bram',128*8*2))
-
-		k=0
-		for i in range(0,128):
-			bramsnapI[i] = bramsnap1[k]
-			bramsnapI[i+128] = bramsnap1[k+1]	
-			bramsnapI[i+256] = bramsnap1[k+2]	
-			bramsnapI[i+384] = bramsnap1[k+3]	
-		
-			bramsnapI[i+512] = bramsnap2[k]
-			bramsnapI[i+640] = bramsnap2[k+1]	
-			bramsnapI[i+768] = bramsnap2[k+2]	
-			bramsnapI[i+896] = bramsnap2[k+3]	
-
-			bramsnapQ[i] = bramsnap1a[k]
-			bramsnapQ[i+128] = bramsnap1a[k+1]	
-			bramsnapQ[i+256] = bramsnap1a[k+2]	
-			bramsnapQ[i+384] = bramsnap1a[k+3]	
-		
-			bramsnapQ[i+512] = bramsnap2a[k]
-			bramsnapQ[i+640] = bramsnap2a[k+1]	
-			bramsnapQ[i+768] = bramsnap2a[k+2]	
-			bramsnapQ[i+896] = bramsnap2a[k+3]	
-			k=k+4
-
-		k=0
-		for i in range(0,128):
-			bramsnapX[i]     = bramsnap1x[k]   + 1j*bramsnap1x[k+1]
-			bramsnapX[i+128] = bramsnap1x[k+2] + 1j*bramsnap1x[k+3]
-		
-			bramsnapX[i+256] = bramsnap2x[k]   + 1j*bramsnap2x[k+1]
-			bramsnapX[i+384] = bramsnap2x[k+2] + 1j*bramsnap2x[k+3]
-		
-			bramsnapX[i+512] = bramsnap3x[k]   + 1j*bramsnap3x[k+1]
-			bramsnapX[i+640] = bramsnap3x[k+2] + 1j*bramsnap3x[k+3]
-
-			bramsnapX[i+768] = bramsnap4x[k]   + 1j*bramsnap4x[k+1]
-			bramsnapX[i+896] = bramsnap4x[k+2] + 1j*bramsnap4x[k+3]
-			k=k+4
-
-		#bram1a_cplx = np.asarray(bramsnap1x) + 1j*np.asarray(bramsnap2x)
-		#bram2a_cplx = np.asarray(bramsnap3x) + 1j*np.asarray(bramsnap4x)
-		#bram3a_cplx = np.asarray(bramsnap5x) + 1j*np.asarray(bramsnap6x)
-		#bram4a_cplx = np.asarray(bramsnap7x) + 1j*np.asarray(bramsnap8x)
-		#bram5a_cplx = np.asarray(bramsnap9x) + 1j*np.asarray(bramsnap10x)
-		#bram6a_cplx = np.asarray(bramsnap11x) + 1j*np.asarray(bramsnap12x)
-		#bram7a_cplx = np.asarray(bramsnap13x) + 1j*np.asarray(bramsnap14x)
-		#bram8a_cplx = np.asarray(bramsnap15x) + 1j*np.asarray(bramsnap16x)
-		
-		#bramsnapI = np.concatenate([bramsnap1,bramsnap2,bramsnap3,bramsnap4,bramsnap5,bramsnap6,bramsnap7,bramsnap8])
-		#bramsnapQ = np.concatenate([bramsnap1a,bramsnap2a,bramsnap3a,bramsnap4a,bramsnap5a,bramsnap6a,bramsnap7a,bramsnap8a])
-		#bramsnapX = np.concatenate([bram1a_cplx,bram2a_cplx,bram3a_cplx,bram4a_cplx,bram5a_cplx,bram6a_cplx,bram7a_cplx,bram8a_cplx])
-		
-		#c1 = 1 + 1j
-		#c2 = 0 + 0j
-		#c3 = 0 + 0j
-		#c4 = 1 + 1j
-		# 0.25 comes from fpga fixed point binary. Scaling to match power
-		# now fixed.
-	        bramsnapX_float = (bramsnapX.real.astype(np.float)) + 1j*(bramsnapX.imag.astype(np.float))
-	        #bramsnapX_float = bramsnapX.real.astype(np.float) + bramsnapX.imag.astype(np.float)
-	        rawRE[:,toneIter] = bramsnapX.real;
-		rawIM[:,toneIter] = bramsnapX.imag; 	
+			# 0.25 comes from fpga fixed point binary. Scaling to match power
+		        bramsnapX_float = 0.25*(bramsnapX.real.astype(np.float)) + 0.25j*(bramsnapX.imag.astype(np.float))
+		        #bramsnapX_float = bramsnapX.real.astype(np.float) + bramsnapX.imag.astype(np.float)
+		        	
 		ssbI[:,toneIter] = bramsnapI.astype(np.float)
 		ssbQ[:,toneIter] = bramsnapQ.astype(np.float)
 		ssbX[:,toneIter] = bramsnapX_float
 		powerCoeff = np.sqrt(bramsnapQ.astype(np.float)/bramsnapI.astype(np.float))
 		phaseCoeff = np.unwrap(1*np.angle(bramsnapX_float))
-		#phaseCoeff = 1*np.angle(bramsnapX_float)
 		
 		
 		# write to memory combCoeff for each channel
 		# will be a 1024x1024 array
+	        print toneIter	
 		combCoeff[:,toneIter] = powerCoeff*np.exp(1j*(phaseCoeff))
-		#if toneIter < 1024:
-		#	combCoeffSingle[toneIter] = powerCoeff[toneIter]*np.exp(1j*(phaseCoeff[toneIter]))
-		#else:
-		#	combCoeffSingle[toneIter] = powerCoeff[toneIter-1024]*np.exp(1j*(phaseCoeff[toneIter-1024]))
-		hittite.setAll(hittiteFreq+((toneIter+1)*freqInc),hittitePower,'on',hittiteIp,50000,doPrint=True,ret=False)
+		#hittite.setAll(hittiteFreq+((toneIter+1)*freqInc),hittitePower,'on',hittiteIp,50000,doPrint=True,ret=False)
 
 
-#plt.subplot(2,1,1)
-#plt.semilogy(np.abs(bramX_cplx))
-#plt.plot((bramsnapI))
-#plt.subplot(2,1,2)
-#plt.semilogy(np.abs(bramsnapXa))
-#plt.plot((bramsnapQ))
-#plt.show()
 
 
 def writeFiles():
@@ -370,10 +337,6 @@ def writeFiles():
 		hf.create_dataset("ssbQ",data=ssbQ)
 	with h5py.File('ssbX.h5','w') as hf:
 		hf.create_dataset("ssbX",data=ssbX)
-	with h5py.File('rawRE.h5','w') as hf:
-		hf.create_dataset("rawRE",data=rawRE)
-	with h5py.File('rawIM.h5','w') as hf:
-		hf.create_dataset("rawIM",data=rawIM)
 
 defCoeffs()
 genCoeffs()
