@@ -43,5 +43,6 @@ fpga.config_10gbe_core('one_GbE',mac_base+source_ip,source_ip,fabric_port,arp_ta
 #fpga.write_int('arm',0)
 #fpga.write_int('pps',0)
 fpga.write_int('gbe_tx_rst',0)
-
+fpga.sleep(0.2)
+fpga.write_int('arm_eth',1)
 
