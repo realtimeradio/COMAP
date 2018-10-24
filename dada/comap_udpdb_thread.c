@@ -253,6 +253,9 @@ int comap_udpdb_open_buffer (udpdb_t * ctx)
   ctx->block_open = 1;
   ctx->block_count = 0;
 
+  //udpdb.hdu_bufsz = ipcbuf_get_bufsz ((ipcbuf_t *) hdu->data_block);
+  //memset(ctx->block,1,ctx->hdu_bufsz);
+
   return 0;
 }
 
@@ -451,7 +454,8 @@ void * comap_udpdb_receive_obs (void * arg)
       seq_no = UINT64_C (0);
       for (i = 0; i < 8; i++ )
       {
-        tmp = b[8 - i - 1];
+        //tmp = b[8 - i - 1];
+	tmp = b[i];
         seq_no |= (tmp << ((i & 7) << 3));
       }
 

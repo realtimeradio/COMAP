@@ -4,7 +4,7 @@ comap_hdr = comap_udp.h comap_def.h
 
 libcomap_la_SOURCES = $(comap_hdr) comap_udp.c
 
-bin_PROGRAMS = comap_udptest comap_udpdb_thread 
+bin_PROGRAMS = comap_udptest comap_udpdb_thread comap_udpdb_preset
 
 LDADD = libcomap.la \
 	$(top_builddir)/src/libpsrdada.la \

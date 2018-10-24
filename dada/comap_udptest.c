@@ -76,7 +76,7 @@ int main (int argc, char **argv)
   char * interface = "any";
 
   /* port for incoming UDP packets */
-  int inc_port = 4000;
+  int inc_port = 4002;
 
   /* Flag set in verbose mode */
   unsigned verbose = 0;
@@ -205,7 +205,8 @@ int main (int argc, char **argv)
       }
       else // we received a packet of the WRONG size, ignore it
       {
-        multilog (log, LOG_ERR, "receive_obs: received %d bytes, expected %d\n", got, pkt_size);
+        //multilog (log, LOG_ERR, "receive_obs: received %d bytes, expected %d\n", got, pkt_size);
+        fprintf(stderr, "receive_obs: received %d bytes, expected %d\n", got, pkt_size);
       }
     }
 
@@ -218,7 +219,8 @@ int main (int argc, char **argv)
       for (i = 0; i < 8; i++ )
       {
         tmp = UINT64_C (0);
-        tmp = arr[8 - i - 1];
+        tmp = arr[i];
+        //tmp = arr[8 - i - 1];
         seq_no |= (tmp << ((i & 7) << 3));
       }
 
@@ -228,17 +230,20 @@ int main (int argc, char **argv)
         {
           bytes->received += pkt_size;
           packets->received += 1;
+	  if (verbose)
+	  	fprintf(stderr, "Received packet, seq no: %"PRIu64"\n",seq_no);
           // disabled memcpy for testing speed of capture
           //memcpy (dst, buffer, pkt_size);
         } 
         else if (seq_no <= prev_seq_no)
         {
-          multilog (log, LOG_ERR, "main: impossible! seq=%"PRIu64", prev=%"PRIu64"\n", seq_no, prev_seq_no);
+          fprintf(stderr, "main: impossible! seq=%"PRIu64", prev=%"PRIu64"\n", seq_no, prev_seq_no);
+          //multilog (log, LOG_ERR, "main: impossible! seq=%"PRIu64", prev=%"PRIu64"\n", seq_no, prev_seq_no);
         }
         else
         {
           uint64_t diff = seq_no - prev_seq_no;
-          //fprintf(stderr, "dropped %"PRIu64" pkts seq=%"PRIu64", prev=%"PRIu64"\n", diff, seq_no, prev_seq_no);
+          fprintf(stderr, "dropped %"PRIu64" pkts seq=%"PRIu64", prev=%"PRIu64"\n", diff, seq_no, prev_seq_no);
           packets->dropped += diff;
           bytes->dropped += diff * (pkt_size);
         }
@@ -313,7 +318,7 @@ void stats_thread(void * arg) {
 
     /* determine how much memory is free in the receivers */
     //if (ctx->verbose)
-      fprintf (stderr,"R=%6.3f [Gb/s], D=%4.1f [MB/s], D=%"PRIu64" pkts, s_s=%"PRIu64"\n", gb_rcv_ps, mb_drp_ps, ctx->packets->dropped, s_rcv_1sec);
+      fprintf (stderr,"R=%6.6f [Gb/s], D=%4.1f [MB/s], D=%"PRIu64" pkts, s_s=%"PRIu64"\n", gb_rcv_ps, mb_drp_ps, ctx->packets->dropped, s_rcv_1sec);
 
     sleep(1);
   }
