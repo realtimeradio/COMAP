@@ -1,0 +1,6 @@
+export XILINX_PATH=/data/Xilinx/14.7/ISE_DS
+export MATLAB_PATH=/data/matlab-r2013b
+export XILINX_PLATFORM=lin64
+export GAVRT_PATH=/home/jackh/src/comap/legacy_casper
+export CASPER_SKIP_STARTUP_M=1
+export CASPER_USE_XILINX_CAST=1
