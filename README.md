@@ -86,7 +86,7 @@ for its adders. This can be set manually using the Simulink dialog prompt, or
 from the MATLAB prompt with the commands:
 
 ```
-set_param([bdroot '/fft_wideband_real1/fft_biplex_real_4x/biplex_core/fft_stage_2'], 'dsp48_adders', 'off')
+>> set_param([bdroot '/fft_wideband_real1/fft_biplex_real_4x/biplex_core/fft_stage_2'], 'dsp48_adders', 'off')
 >> set_param([bdroot '/fft_wideband_real/fft_biplex_real_4x/biplex_core/fft_stage_2'], 'dsp48_adders', 'off')
 ```
 
