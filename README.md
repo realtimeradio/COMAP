@@ -100,6 +100,7 @@ The following modifications have been made to the `comap_v30.slx` design (compil
  4. Add fanout registers to address lines of coefficient `cX_Y` RAM blocks, and compensate for latency change at `ssbX` inputs.
  5. Add fanout-control of `valid` GoTo blocks, providing 4 copies to drive downstream logic
  6. Change various small counters to implement in behavioural HDL
- 7. Add `UCF` yellow block, to link placement constraints into CASPER build process.
+ 7. Make cast blocks in final spectrometer power computation wrap (not saturate) since the bitwidths involved guarantee against overflow.
+ 8. Add `UCF` yellow block, to link placement constraints into CASPER build process.
 
 None of these changes should have any functional effect on the design, though the total FFT latency has been somewhat increased.
