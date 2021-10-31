@@ -77,17 +77,19 @@ This model compiles using the `casper_xps` flow, and meets timing at an ADC
 sample rate of 4.28 GSamples/second. This corresponds to a "simulink" clock
 rate of 267.5 MHz.
 
-A manual change to the configuration of the FFT blocks in this design is necessary
+Some manual changes to the configuration of the FFT blocks in this design are necessary
 if the FFTs are redrawn (for example, because of a library update using
-`update_casper_blocks`). Without this change, the design won't quite meet timing.
+`update_casper_blocks`). Without these changes, the design won't quite meet timing.
 
-Change the FFT stage 2 butterfly logic to use soft-logic, rather than DSP slices,
+Change the FFT stage 2 and FFT-direct state 3-3 butterfly logic to use soft-logic, rather than DSP slices,
 for its adders. This can be set manually using the Simulink dialog prompt, or
 from the MATLAB prompt with the commands:
 
 ```
->> set_param([bdroot '/fft_wideband_real1/fft_biplex_real_4x/biplex_core/fft_stage_2'], 'dsp48_adders', 'off')
 >> set_param([bdroot '/fft_wideband_real/fft_biplex_real_4x/biplex_core/fft_stage_2'], 'dsp48_adders', 'off')
+>> set_param([bdroot '/fft_wideband_real1/fft_biplex_real_4x/biplex_core/fft_stage_2'], 'dsp48_adders', 'off')
+>> set_param([bdroot '/fft_wideband_real/fft_direct/butterfly3_3'], 'dsp48_adders', 'off')
+>> set_param([bdroot '/fft_wideband_real1/fft_direct/butterfly3_3'], 'dsp48_adders', 'off')
 ```
 
 ## Changelog
@@ -96,11 +98,12 @@ The following modifications have been made to the `comap_v30.slx` design (compil
 
  1. Create new control environment variable `CASPER_USE_XILINX_CAST` and regenerate all blocks with this set to `1`, to avoid using CASPER custom cast logic.
  2. Set convert latency to `2` (was `1`) in FFT blocks.
- 3. Turn off DSP48 adders in stage 2 of FFT blocks
+ 3. Turn off DSP48 adders in stage 2 of FFT blocks.
  4. Add fanout registers to address lines of coefficient `cX_Y` RAM blocks, and compensate for latency change at `ssbX` inputs.
- 5. Add fanout-control of `valid` GoTo blocks, providing 4 copies to drive downstream logic
- 6. Change various small counters to implement in behavioural HDL
+ 5. Add fanout-control of `valid` GoTo blocks, providing 4 copies to drive downstream logic.
+ 6. Change various small counters to implement in behavioural HDL.
  7. Make cast blocks in final spectrometer power computation wrap (not saturate) since the bitwidths involved guarantee against overflow.
  8. Add `UCF` yellow block, to link placement constraints into CASPER build process.
+ 9. Set `version` register to hold value `31` (was `29`, even though the model was named `comap_v30.slx`)
 
 None of these changes should have any functional effect on the design, though the total FFT latency has been somewhat increased.

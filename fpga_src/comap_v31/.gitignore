@@ -1,0 +1,6 @@
+*.m
+*/
+!bit_files/
+bit_files/*.info
+bit_files/*.bit
+bit_files/*.bof
