@@ -105,5 +105,7 @@ The following modifications have been made to the `comap_v30.slx` design (compil
  7. Make cast blocks in final spectrometer power computation wrap (not saturate) since the bitwidths involved guarantee against overflow.
  8. Add `UCF` yellow block, to link placement constraints into CASPER build process.
  9. Set `version` register to hold value `31` (was `29`, even though the model was named `comap_v30.slx`)
+ 10. Latency rearrangement in mast sync logic.
+
 
 None of these changes should have any functional effect on the design, though the total FFT latency has been somewhat increased.
